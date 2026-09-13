@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-review"
+version = "0.1.0"
+description = "Claude Code sub-agent that reviews a PR and posts a structured comment"
+readme = "claude_review/README.md"
+authors = [{ name = "Aurelian" }]
+license = "MIT"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+claude-review = "claude_review.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["claude_review*"]
