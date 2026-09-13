@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+import json
+import os
+import re
+import sys
+from datetime import datetime
+
+LOG_FILE = os.path.expanduser('~/.claude/hooks/blocked.log')
+
+DANGEROUS_PATTERNS = [
+    (r'rm\s+-[^\s]*r[^\s]*f|rm\s+-[^\s]*f[^\s]*r', 'rm -rf (recursive force delete)'),
+    (r'DROP\s+TABLE', 'DROP TABLE (SQL table deletion)'),
+    (r'git\s+push\s+[^\n]*--force', 'git push --force (force push)'),
+    (r'TRUNCATE', 'TRUNCATE (SQL truncation)'),
+    (r'DELETE\s+FROM(?!.*WHERE)', 'DELETE FROM without WHERE clause'),
+]
+
+def log_blocked_command(command, project_root, pattern_name):
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    timestamp = datetime.now().isoformat()
+    with open(LOG_FILE, 'a') as f:
+        f.write(f"[{timestamp}] Project: {project_root}\n")
+        f.write(f"Blocked pattern: {pattern_name}\n")
+        f.write(f"Command: {command}\n")
+        f.write("-" * 80 + "\n")
+
+def validate_tool_use(payload):
+    tool_name = payload.get('tool_name', '')
+    
+    if tool_name != 'bash':
+        return {'allowed': True}
+    
+    tool_input = payload.get('tool_input', {})
+    command = tool_input.get('command', '')
+    project_root = payload.get('project_root', 'unknown')
+    
+    for pattern, description in DANGEROUS_PATTERNS:
+        if re.search(pattern, command, re.IGNORECASE):
+            log_blocked_command(command, project_root, description)
+            return {
+                'allowed': False
