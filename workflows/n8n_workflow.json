@@ -1,0 +1,33 @@
+{
+  "name": "GitHub Weekly Summary",
+  "nodes": [
+    {
+      "name": "Trigger",
+      "type": "cron",
+      "parameters": {
+        "cronExpression": "0 17 * * 5"
+      }
+    },
+    {
+      "name": "Fetch GitHub Data",
+      "type": "httpRequest",
+      "parameters": {
+        "url": "https://api.github.com/repos/your-repo-owner/your-repo/commits",
+        "authentication": "none"
+      }
+    },
+    {
+      "name": "Claude API",
+      "type": "httpRequest",
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/claude-sonnet-4-20250514",
+        "authentication": "none"
+      }
+    },
+    {
+      "name": "Delivery",
+      "type": "emailWebhook",
+      "parameters": {}
+    }
+  ]
+}

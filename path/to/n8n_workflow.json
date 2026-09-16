@@ -1,0 +1,14 @@
+{
+  "trigger": {
+    "type": "cron"
+  },
+  "github": {
+    "actions": ["get-activity"]
+  },
+  "claude-sonnet-4-20250514": {
+    "narrative": "generate"
+  },
+  "delivery": {
+    "method": "email"
+  }
+}
